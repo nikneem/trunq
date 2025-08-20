@@ -39,13 +39,24 @@
           <mat-card-subtitle *ngIf="!isAuthenticated()">Sign in required</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <form (submit)="$event.preventDefault()" [attr.aria-disabled]="!isAuthenticated()" class="disabled-form">
+          <form (submit)="$event.preventDefault()" [attr.aria-disabled]="!isAuthenticated()" [class.disabled-form]="!isAuthenticated()">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Long URL</mat-label>
               <input #longUrlInput matInput placeholder="https://example.com/very/long/link" [disabled]="!isAuthenticated()" />
             </mat-form-field>
-            <button mat-flat-button color="primary" class="full-width" [disabled]="!isAuthenticated()" (click)="shortenUrl(longUrlInput.value)">Shorten</button>
-            <button mat-stroked-button color="primary" class="full-width view-links-btn" [disabled]="!isAuthenticated()" (click)="goLinks()">View All My Links</button>
+            <button mat-flat-button color="primary" class="full-width primary-action" [disabled]="!isAuthenticated() || isCreating || !isValidUrl(longUrlInput.value)" (click)="shortenUrl(longUrlInput.value)">
+              <ng-container *ngIf="!isCreating; else creating">Shorten</ng-container>
+              <ng-template #creating>Creating…</ng-template>
+            </button>
+            <button mat-stroked-button color="primary" class="full-width view-links-btn secondary-action" [disabled]="!isAuthenticated()" (click)="goLinks()">View All My Links</button>
+            <div class="result" *ngIf="createdLink as link">
+              <p>Your short link:</p>
+              <code>{{ link.shortCode }}</code>
+            </div>
+            <div class="error" *ngIf="createError as err">
+              <mat-icon color="warn">error_outline</mat-icon>
+              <span>{{ err }}</span>
+            </div>
           </form>
           <div class="auth-hint" *ngIf="!isAuthenticated()">
             <mat-icon>lock</mat-icon>

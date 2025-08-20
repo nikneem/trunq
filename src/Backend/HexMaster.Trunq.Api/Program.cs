@@ -1,9 +1,5 @@
 using System.Security.Claims;
-using Azure.Data.Tables;
-using HexMaster.Trunq.Api.Models;
-using HexMaster.Trunq.Core.Cqrs;
-using HexMaster.Trunq.Resolver.Features.CreateShortLink;
-using HexMaster.Trunq.Resolver.Repositories;
+using HexMaster.Trunq.Resolver.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -14,6 +10,18 @@ builder.AddServiceDefaults();
 // Add services to the container
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Add CORS policy for frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
 
 // Add authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -35,17 +43,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// Add Azure Table Storage
-builder.Services.AddSingleton<TableServiceClient>(provider =>
-{
-    var connectionString = builder.Configuration.GetConnectionString("AzureTableStorage") 
-                          ?? "UseDevelopmentStorage=true"; // Default to Azurite for local development
-    return new TableServiceClient(connectionString);
-});
+// Add Azure Table Storage through Aspire
+builder.AddAzureTableClient("tables");
 
-// Register repositories and handlers
-builder.Services.AddScoped<IShortLinkRepository, AzureTableShortLinkRepository>();
-builder.Services.AddScoped<ICommandHandler<CreateShortLinkCommand, ShortLinkDetailsResponse>, CreateShortLinkCommandHandler>();
+// Add short link services
+builder.Services.AddShortLinkServices();
 
 var app = builder.Build();
 
@@ -58,59 +60,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Enable CORS
+app.UseCors("FrontendPolicy");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-// API endpoints
-app.MapPost("/api/links", async (
-    CreateLinkRequest request, 
-    ICommandHandler<CreateShortLinkCommand, ShortLinkDetailsResponse> handler,
-    ClaimsPrincipal user,
-    CancellationToken cancellationToken) =>
-{
-    // Get the subject ID from the JWT token
-    var subjectId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value 
-                   ?? user.FindFirst("sub")?.Value;
-    
-    if (string.IsNullOrEmpty(subjectId))
-    {
-        return Results.Unauthorized();
-    }
-
-    // Create command
-    var command = new CreateShortLinkCommand
-    {
-        TargetUrl = request.TargetUrl,
-        SubjectId = subjectId
-    };
-
-    try
-    {
-        // Handle command
-        var shortLinkDetails = await handler.HandleAsync(command, cancellationToken);
-
-        // Return response
-        var response = new CreateLinkResponse
-        {
-            Id = shortLinkDetails.Id,
-            ShortCode = shortLinkDetails.ShortCode,
-            TargetUrl = shortLinkDetails.TargetUrl,
-            CreatedAt = shortLinkDetails.CreatedAt
-        };
-
-        return Results.Created($"/api/links/{shortLinkDetails.ShortCode}", response);
-    }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(new { error = ex.Message });
-    }
-    catch (InvalidOperationException ex)
-    {
-        return Results.Problem(ex.Message, statusCode: 500);
-    }
-})
-.RequireAuthorization()
-.WithName("CreateShortLink")
-.WithOpenApi();
+// Map short link endpoints using extension method
+app.MapShortLinkEndpoints();
 
 app.Run();

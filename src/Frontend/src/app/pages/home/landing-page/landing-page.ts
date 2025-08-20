@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, effect } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -9,6 +9,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ShortLinkService } from '../../../services/short-link.service';
 
 @Component({
   selector: 'trq-landing-page',
@@ -33,11 +34,28 @@ export class LandingPage {
   readonly year = new Date().getFullYear();
   readonly isAuthenticated = signal(false);
 
-  constructor(private readonly oidcSecurityService: OidcSecurityService, private readonly router: Router) {
+  constructor(
+    private readonly oidcSecurityService: OidcSecurityService,
+    private readonly router: Router,
+    private readonly shortLinkService: ShortLinkService
+  ) {
     this.oidcSecurityService.isAuthenticated$.subscribe(result => {
       this.isAuthenticated.set(result.isAuthenticated)
-    }    );
+    });
+
+    // Reset any existing created link & errors upon logout
+    effect(() => {
+      if (!this.isAuthenticated()) {
+        this.shortLinkService.lastCreated.set(null);
+        this.shortLinkService.error.set(null);
+      }
+    });
   }
+
+  // Property-style access returning signal values for template convenience
+  get createdLink() { return this.shortLinkService.lastCreated(); }
+  get createError() { return this.shortLinkService.error(); }
+  get isCreating() { return this.shortLinkService.isCreating(); }
 
   goLinks() {
     if (!this.isAuthenticated()) return;
@@ -50,11 +68,17 @@ export class LandingPage {
   }
 
   shortenUrl(url: string) {
-    if (!this.isAuthenticated()) {
+    if (!this.isAuthenticated()) return;
+    if (!url || !/^https?:\/\//i.test(url)) {
+      this.shortLinkService.error.set('Enter a valid http(s) URL');
       return;
     }
-    // Placeholder: Actual implementation will call backend API when available.
-    console.log('Shorten stub', url);
+    this.shortLinkService.create(url).subscribe();
+  }
+
+  isValidUrl(url: string | null | undefined): boolean {
+    if (!url) return false;
+    return /^https?:\/\//i.test(url.trim());
   }
 
 }

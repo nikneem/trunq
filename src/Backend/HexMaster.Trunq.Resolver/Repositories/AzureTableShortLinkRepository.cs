@@ -11,7 +11,8 @@ public class AzureTableShortLinkRepository : IShortLinkRepository
     public AzureTableShortLinkRepository(TableServiceClient tableServiceClient)
     {
         _tableClient = tableServiceClient.GetTableClient("shortlinks");
-        _tableClient.CreateIfNotExists();
+        // Create table if it doesn't exist (Aspire/Azurite handles this gracefully)
+        _tableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
     }
 
     public async Task<ShortLink> CreateAsync(ShortLink shortLink, CancellationToken cancellationToken = default)

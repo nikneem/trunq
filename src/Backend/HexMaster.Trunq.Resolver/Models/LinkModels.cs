@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace HexMaster.Trunq.Api.Models;
+namespace HexMaster.Trunq.Resolver.Models;
 
 public record CreateLinkRequest
 {
