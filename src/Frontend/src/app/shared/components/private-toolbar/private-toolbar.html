@@ -1,0 +1,24 @@
+<mat-toolbar color="primary" class="private-toolbar" role="navigation">
+	<button mat-button class="brand" [routerLink]="['/app','links']" aria-label="Go to links list">trunq</button>
+	<span class="spacer"></span>
+	<button mat-button [matMenuTriggerFor]="userMenu" class="user-trigger" aria-haspopup="true" aria-label="User menu">
+		<span class="user-name">{{ displayName() }}</span>
+		<mat-icon class="chevron" fontIcon="expand_more"></mat-icon>
+	</button>
+</mat-toolbar>
+
+<mat-menu #userMenu="matMenu" xPosition="before" yPosition="below">
+	<button mat-menu-item [routerLink]="['/app','links']">
+		<mat-icon>link</mat-icon>
+		<span>My Links</span>
+	</button>
+	<button mat-menu-item (click)="goPreferences()">
+		<mat-icon>tune</mat-icon>
+		<span>Preferences</span>
+	</button>
+	<mat-divider></mat-divider>
+	<button mat-menu-item (click)="logout()">
+		<mat-icon>logout</mat-icon>
+		<span>Logout</span>
+	</button>
+</mat-menu>

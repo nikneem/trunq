@@ -1,0 +1,24 @@
+@use 'sass:color';
+
+.private-toolbar {
+	display: flex;
+	/* Force primary background via Material design tokens with safe fallbacks */
+	background: var(--mat-toolbar-container-background-color, var(--mat-sys-primary));
+	color: var(--mat-toolbar-container-text-color, var(--mat-sys-on-primary, #fff));
+	.brand {
+		font-size: 1.15rem;
+		font-weight: 600;
+		letter-spacing: .5px;
+		text-transform: lowercase;
+		color: inherit;
+	}
+	.spacer { flex: 1 1 auto; }
+	.user-trigger {
+		display: flex;
+		align-items: center;
+		gap: .25rem;
+		color: inherit;
+		.user-name { max-width: 160px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+		.chevron { font-size: 20px; }
+	}
+}

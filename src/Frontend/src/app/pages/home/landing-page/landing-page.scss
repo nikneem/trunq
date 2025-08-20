@@ -1,0 +1,287 @@
+// Hero layout
+.hero {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(145deg, var(--mat-sys-primary-container), var(--mat-sys-surface));
+  position: relative;
+  color: var(--mat-sys-on-surface);
+
+  &__toolbar {
+    position: fixed; // changed from sticky to fixed
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    backdrop-filter: blur(6px);
+    background: rgba(0,0,0,0.25);
+    --mat-toolbar-container-background-color: transparent;
+    z-index: 1000; // keep toolbar above page content
+  }
+
+  .brand {
+    font-weight: 600;
+    font-size: 1.25rem;
+    letter-spacing: .5px;
+    text-transform: lowercase;
+  }
+
+  .spacer { flex: 1; }
+
+  &__content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+    padding: clamp(2rem, 6vw, 5rem) clamp(1.25rem, 5vw, 4rem) 4rem;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  &__text {
+    h1 {
+      margin: 0 0 1rem;
+      font-size: clamp(2.25rem, 5vw, 3.25rem);
+      line-height: 1.1;
+      font-weight: 600;
+    }
+    .tagline {
+      font-size: 1.125rem;
+      margin: 0 0 1.5rem;
+      max-width: 50ch;
+      opacity: .85;
+    }
+  }
+
+  &__card {
+    padding: .5rem 1rem 1.5rem;
+    .full-width { width: 100%; }
+    form { display: flex; flex-direction: column; gap: .75rem; }
+  }
+
+  &__wave {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 120px;
+    background: linear-gradient(to bottom, transparent, var(--mat-sys-surface));
+    pointer-events: none;
+  }
+
+  .hero__inner { padding-top: 4.25rem; } // offset for fixed toolbar height
+}
+
+.hero.modern {
+  --grad-stop-a: var(--mat-sys-surface-container-highest);
+  --grad-stop-b: var(--mat-sys-surface);
+  background: linear-gradient(180deg, var(--grad-stop-a) 0%, var(--grad-stop-b) 55%)
+              , radial-gradient(circle at 80% 20%, var(--mat-sys-primary-container) 0%, transparent 60%)
+              , radial-gradient(circle at 15% 75%, var(--mat-sys-tertiary-container) 0%, transparent 65%);
+  background-blend-mode: normal, overlay, overlay;
+  position: relative;
+  isolation: isolate;
+
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+  &::before {
+    background:
+      linear-gradient(120deg, rgba(var(--mat-sys-primary-rgb), .15), transparent 70%);
+  }
+  &::after {
+    background:
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0 14px, transparent 14px 28px);
+    opacity: .35;
+    mask: radial-gradient(circle at 30% 40%, #000 0%, transparent 65%);
+  }
+
+  .hero__inner {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding-inline: clamp(1rem, 4vw, 4rem);
+  }
+  .hero__content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr));
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: stretch;
+    padding-block: clamp(3rem, 8vh, 6rem) clamp(2rem, 8vh, 7rem);
+  }
+  .hero__text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    h1 { font-size: clamp(2.4rem, 5vw, 3.4rem); font-weight: 600; letter-spacing: -.5px; }
+    .tagline { font-size: 1.1rem; margin: 1rem 0 1.75rem; max-width: 54ch; line-height: 1.4; opacity: .9; }
+  }
+  .hero__card {
+    backdrop-filter: blur(8px);
+    background: linear-gradient(145deg, var(--mat-sys-surface), var(--mat-sys-surface-container)) border-box;
+    border: 1px solid var(--mat-sys-outline-variant);
+    position: relative;
+    overflow: hidden;
+    .auth-hint { display: flex; gap: .5rem; margin-top: .75rem; font-size: .75rem; opacity: .75; align-items: flex-start; }
+    .auth-actions { display: flex; gap: .75rem; justify-content: flex-end; padding: .75rem 1rem 1rem; }
+    .disabled-form { opacity: .6; }
+  }
+}
+
+// Opaque toolbar override so scrolled content is not visible behind it
+.hero__toolbar, .hero.modern .hero__toolbar {
+  --mat-toolbar-container-background-color: var(--mat-sys-primary) !important;
+  background: var(--mat-sys-primary) !important; // remove transparency
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 2px 8px -2px rgba(0,0,0,.35);
+}
+
+.hero__toolbar .brand { color: var(--mat-sys-on-primary); }
+.hero.modern .hero__toolbar .brand { color: var(--mat-sys-on-primary); }
+
+// Unify header button typography
+.hero__toolbar .header-btn, .hero__toolbar .header-btn--primary {
+  font-weight: 500 !important; // consistent weight
+  letter-spacing: .3px;
+}
+// Neutralize previous special weight on primary header button
+.header-btn--primary { font-weight: 500 !important; }
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0 0 1.25rem;
+
+
+}
+
+.selling-points {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: .5rem;
+  li {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .95rem;
+    mat-icon { color: var(--mat-sys-primary); font-size: 20px; height: 20px; width: 20px; }
+  }
+}
+
+.features {
+  padding: 4rem clamp(1.25rem, 5vw, 4rem) 5rem;
+  background: var(--mat-sys-surface);
+
+  h2 {
+    text-align: center;
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    margin: 0 0 2.5rem;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .feature-card {
+    border: 1px solid var(--mat-sys-outline-variant);
+    transition: background .3s, transform .25s ease;
+    cursor: default;
+
+    &:hover { background: var(--mat-sys-surface-container-lowest); transform: translateY(-4px); }
+    mat-icon { background: var(--mat-sys-primary-container); color: var(--mat-sys-on-primary-container); }
+  }
+}
+
+.site-footer {
+  background: var(--mat-sys-surface-container-low);
+  padding: 1.25rem clamp(1rem, 4vw, 3rem);
+  font-size: .8rem;
+
+  .footer__inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+  }
+  .bullet { opacity: .4; }
+}
+
+@media (max-width: 640px) {
+  .hero__card { order: -1; }
+  .hero__toolbar button + button { display: none; } // simplify on very small screens
+}
+
+@media (max-width: 640px) {
+  .hero.modern .hero__card { order: -1; }
+  .hero.modern .hero__toolbar { backdrop-filter: blur(10px); }
+}
+
+@media (prefers-color-scheme: dark) {
+  .hero.modern {
+    --grad-stop-a: #0e141c;
+    --grad-stop-b: #05080d;
+    background: linear-gradient(180deg, var(--grad-stop-a) 0%, var(--grad-stop-b) 65%)
+                , radial-gradient(circle at 80% 20%, rgba(var(--mat-sys-primary-rgb), .25) 0%, transparent 60%)
+                , radial-gradient(circle at 15% 75%, rgba(var(--mat-sys-tertiary-rgb), .25) 0%, transparent 65%);
+    &::after { opacity: .25; }
+    .hero__card { background: linear-gradient(145deg, var(--mat-sys-surface-container-high), var(--mat-sys-surface)); }
+  }
+}
+
+// Create a lower stacking context for the rest of the hero content so it passes beneath toolbar visually
+.hero .hero__inner, .hero.modern .hero__inner { position: relative; z-index: 0; }
+
+// Toolbar button visual unification & contrast
+.hero__toolbar .header-btn {
+  --btn-bg: rgba(255,255,255,0.12);
+  --btn-border: rgba(255,255,255,0.28);
+  --btn-hover-bg: rgba(255,255,255,0.20);
+  --btn-active-bg: rgba(255,255,255,0.28);
+  position: relative;
+  background: var(--btn-bg) !important;
+  color: var(--mat-sys-on-primary) !important;
+  border: 1px solid var(--btn-border) !important;
+  border-radius: 999px !important;
+  padding: .45rem 1.15rem !important;
+  line-height: 1.1 !important;
+  text-transform: none;
+  transition: background .25s, border-color .25s, box-shadow .25s;
+}
+.hero__toolbar .header-btn:hover { background: var(--btn-hover-bg) !important; }
+.hero__toolbar .header-btn:active { background: var(--btn-active-bg) !important; }
+.hero__toolbar .header-btn:focus-visible { outline: 2px solid rgba(255,255,255,0.9); outline-offset: 2px; }
+
+// Make both buttons identical; override prior primary style
+.hero__toolbar .header-btn--primary {
+  background: var(--btn-bg) !important;
+  border: 1px solid var(--btn-border) !important;
+  box-shadow: 0 2px 4px -1px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,0.06);
+}
+.hero__toolbar .header-btn--primary:hover { box-shadow: 0 4px 12px -2px rgba(0,0,0,.5); }
+
+@media (prefers-color-scheme: light) {
+  .hero__toolbar .header-btn {
+    --btn-bg: rgba(255,255,255,0.85);
+    --btn-border: rgba(0,0,0,0.08);
+    --btn-hover-bg: #ffffff;
+    --btn-active-bg: #f2f2f5;
+    color: var(--mat-sys-primary) !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+  .hero__toolbar .header-btn--primary { box-shadow: 0 2px 6px -1px rgba(0,0,0,.15); }
+}
+
+.hero__toolbar .header-btn + .header-btn { margin-left: .75rem; }
