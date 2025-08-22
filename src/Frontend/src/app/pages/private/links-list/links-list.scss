@@ -1,0 +1,283 @@
+.links-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+.header-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+  
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 300;
+      color: #333;
+    }
+    
+    .create-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+  
+  .search-field {
+    max-width: 400px;
+    width: 100%;
+  }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 24px;
+    
+    .header-top {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .create-button {
+        align-self: stretch;
+        justify-content: center;
+      }
+    }
+    
+    .search-field {
+      max-width: none;
+    }
+  }
+}
+
+// Loading State
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  
+  p {
+    margin-top: 16px;
+    color: #666;
+  }
+}
+
+// Error State
+.error-card {
+  margin: 24px 0;
+  
+  .error-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+    }
+    
+    h3 {
+      margin: 0 0 8px 0;
+      color: #f44336;
+    }
+    
+    p {
+      margin: 0 0 16px 0;
+      color: #666;
+    }
+  }
+}
+
+// Table Styles
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow-x: auto;
+}
+
+.links-table {
+  width: 100%;
+  
+  .mat-mdc-header-cell {
+    background: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .mat-mdc-cell {
+    padding: 16px 8px;
+  }
+}
+
+.short-code-cell {
+  .clickable-chip {
+    cursor: pointer;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: #e3f2fd;
+    }
+  }
+}
+
+.url-cell {
+  .url-link {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #1976d2;
+    text-decoration: none;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+    
+    .external-link-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      opacity: 0.7;
+    }
+  }
+}
+
+.hits-count {
+  font-weight: 500;
+  color: #4caf50;
+}
+
+.actions-cell {
+  text-align: center;
+}
+
+// Mobile Cards
+.mobile-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.link-card {
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    
+    .clickable-chip {
+      cursor: pointer;
+      transition: background-color 0.2s;
+      
+      &:hover {
+        background-color: #e3f2fd;
+      }
+    }
+    
+    .card-menu {
+      margin-left: auto;
+    }
+  }
+  
+  .card-url {
+    margin-bottom: 16px;
+    
+    strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    .url-link {
+      color: #1976d2;
+      text-decoration: none;
+      word-break: break-all;
+      line-height: 1.4;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  
+  .card-stats {
+    display: flex;
+    gap: 16px;
+    
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #666;
+      font-size: 0.9rem;
+      
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+}
+
+// Empty State
+.empty-state {
+  margin: 48px 0;
+  text-align: center;
+  
+  .empty-content {
+    padding: 32px;
+    
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: #ccc;
+      margin-bottom: 16px;
+    }
+    
+    h3 {
+      margin: 0 0 8px 0;
+      color: #666;
+    }
+    
+    p {
+      margin: 0 0 16px 0;
+      color: #999;
+    }
+  }
+}
+
+// Menu Actions
+.delete-action {
+  color: #f44336 !important;
+}
+
+// Floating Action Button
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HexMaster.Trunq.Resolver.Validation;
 
 namespace HexMaster.Trunq.Resolver.DomainModels;
 
@@ -18,14 +19,23 @@ public class ShortLink
 
     public void SetShortCode(string shortCode)
     {
-        if (string.IsNullOrWhiteSpace(shortCode) || 
-            shortCode.Length < 4 || 
-            shortCode.Length > 12 ||
-            !shortCode.All(char.IsLetterOrDigit))
-        {
-            throw new ArgumentException("Short code must be 4-12 alphanumeric characters long.");
-        }
+        ShortCodeValidator.ValidateAndThrow(shortCode, nameof(shortCode));
         ShortCode = shortCode;
+    }
+
+    public void UpdateTargetUrl(string targetUrl)
+    {
+        if (!Uri.TryCreate(targetUrl, UriKind.Absolute, out var uri) ||
+            (uri.Scheme != "http" && uri.Scheme != "https"))
+        {
+            throw new ArgumentException("Target URL must be a valid HTTP or HTTPS URL.", nameof(targetUrl));
+        }
+        TargetUrl = targetUrl;
+    }
+
+    public void IncrementHits(int count = 1)
+    {
+        Hits = (Hits ?? 0) + count;
     }
 
     private static string GenerateShortCode()
@@ -43,6 +53,17 @@ public class ShortLink
         TargetUrl = targetUrl;
         SubjectId = subjectId;
         CreatedAt = createdAt;
+    }
+
+    // Constructor with hits for deserialization from storage
+    public ShortLink(Guid id, string shortCode, string targetUrl, string subjectId, DateTimeOffset createdAt, int? hits)
+    {
+        Id = id;
+        ShortCode = shortCode;
+        TargetUrl = targetUrl;
+        SubjectId = subjectId;
+        CreatedAt = createdAt;
+        Hits = hits;
     }
 
     internal ShortLink(string targetUrl, string subjectId)

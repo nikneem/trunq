@@ -1,4 +1,5 @@
 import { PassedInitialConfig } from 'angular-auth-oidc-client';
+import { environment } from '../../environments/environment';
 
 export const authConfig: PassedInitialConfig = {
   config: {
@@ -15,7 +16,7 @@ export const authConfig: PassedInitialConfig = {
     useRefreshToken: true, // Keycloak supports refresh tokens; avoids iframe silent renew complexities
     renewTimeBeforeTokenExpiresInSeconds: 30,
     // Secure API base URLs that should receive the Authorization: Bearer <token>
-    secureRoutes: ['https://localhost:7277/']
+    secureRoutes: [`${environment.apiBaseUrl}/`]
     // Keep default security-related settings; do not relax validation in production.
   }
 };

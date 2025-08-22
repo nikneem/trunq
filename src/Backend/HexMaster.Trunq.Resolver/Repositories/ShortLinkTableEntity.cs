@@ -15,6 +15,7 @@ public class ShortLinkTableEntity : ITableEntity
     public string ShortCode { get; set; } = default!;
     public string TargetUrl { get; set; } = default!;
     public string SubjectId { get; set; } = default!;
+    public int? Hits { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 
     public ShortLinkTableEntity()
@@ -29,11 +30,12 @@ public class ShortLinkTableEntity : ITableEntity
         ShortCode = shortLink.ShortCode;
         TargetUrl = shortLink.TargetUrl;
         SubjectId = shortLink.SubjectId;
+        Hits = shortLink.Hits;
         CreatedAt = shortLink.CreatedAt;
     }
 
     public ShortLink ToDomainModel()
     {
-        return new ShortLink(Id, ShortCode, TargetUrl, SubjectId, CreatedAt);
+        return new ShortLink(Id, ShortCode, TargetUrl, SubjectId, CreatedAt, Hits);
     }
 }

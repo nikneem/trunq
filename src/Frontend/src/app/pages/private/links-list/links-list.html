@@ -1,1 +1,249 @@
 <trq-private-toolbar></trq-private-toolbar>
+
+<div class="links-container">
+  <div class="header-section">
+    <div class="header-top">
+      <h1>My Short Links</h1>
+      <button mat-raised-button color="primary" (click)="createLink()" class="create-button">
+        <mat-icon>add</mat-icon>
+        Create Link
+      </button>
+    </div>
+    
+    <!-- Search -->
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search links...</mat-label>
+      <input matInput 
+             [value]="searchTerm()" 
+             (input)="onSearchChange($any($event.target).value)"
+             placeholder="Search by short code or URL">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading your links...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <mat-card class="error-card">
+      <mat-card-content>
+        <div class="error-content">
+          <mat-icon color="warn">error</mat-icon>
+          <div>
+            <h3>Error Loading Links</h3>
+            <p>{{ error() }}</p>
+            <button mat-raised-button color="primary" (click)="loadLinks()">
+              <mat-icon>refresh</mat-icon>
+              Try Again
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Desktop and Tablet Table View -->
+  @if (!isLoading() && !error() && !isMobile()) {
+    <div class="table-container">
+      <table mat-table [dataSource]="filteredLinks()" class="links-table">
+        
+        <!-- Short Code Column -->
+        <ng-container matColumnDef="shortCode">
+          <th mat-header-cell *matHeaderCellDef>Short Code</th>
+          <td mat-cell *matCellDef="let link">
+            <div class="short-code-cell">
+              <mat-chip-set>
+                <mat-chip 
+                  (click)="copyToClipboard(link)"
+                  [matTooltip]="'Click to copy: ' + getShortUrl(link)"
+                  class="clickable-chip">
+                  {{ link.shortCode }}
+                  <mat-icon matChipTrailingIcon>content_copy</mat-icon>
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Target URL Column -->
+        <ng-container matColumnDef="targetUrl">
+          <th mat-header-cell *matHeaderCellDef>Target URL</th>
+          <td mat-cell *matCellDef="let link">
+            <div class="url-cell">
+              <a [href]="link.targetUrl" 
+                 target="_blank" 
+                 rel="noopener"
+                 [matTooltip]="link.targetUrl"
+                 class="url-link">
+                {{ link.targetUrl }}
+                <mat-icon class="external-link-icon">open_in_new</mat-icon>
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Hits Column -->
+        <ng-container matColumnDef="hits">
+          <th mat-header-cell *matHeaderCellDef>Hits</th>
+          <td mat-cell *matCellDef="let link">
+            <span class="hits-count">{{ link.hits }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Created Date Column -->
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef>Created</th>
+          <td mat-cell *matCellDef="let link">
+            <span [matTooltip]="link.createdAt">{{ formatDate(link.createdAt) }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let link">
+            <div class="actions-cell">
+              <button mat-icon-button 
+                      [matMenuTriggerFor]="actionsMenu"
+                      matTooltip="More actions">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              
+              <mat-menu #actionsMenu="matMenu">
+                <button mat-menu-item (click)="copyToClipboard(link)">
+                  <mat-icon>content_copy</mat-icon>
+                  <span>Copy Link</span>
+                </button>
+                <button mat-menu-item (click)="openUrl(link.targetUrl)">
+                  <mat-icon>open_in_new</mat-icon>
+                  <span>Visit URL</span>
+                </button>
+                <button mat-menu-item (click)="editLink(link)">
+                  <mat-icon>edit</mat-icon>
+                  <span>Edit</span>
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="deleteLink(link)" class="delete-action">
+                  <mat-icon>delete</mat-icon>
+                  <span>Delete</span>
+                </button>
+              </mat-menu>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+      </table>
+    </div>
+  }
+
+  <!-- Mobile Card View -->
+  @if (!isLoading() && !error() && isMobile()) {
+    <div class="mobile-cards">
+      @for (link of filteredLinks(); track link.id) {
+        <mat-card class="link-card">
+          <mat-card-header>
+            <div class="card-header">
+              <mat-chip-set>
+                <mat-chip 
+                  (click)="copyToClipboard(link)"
+                  class="clickable-chip">
+                  {{ link.shortCode }}
+                  <mat-icon matChipTrailingIcon>content_copy</mat-icon>
+                </mat-chip>
+              </mat-chip-set>
+              
+              <button mat-icon-button 
+                      [matMenuTriggerFor]="mobileActionsMenu"
+                      class="card-menu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              
+              <mat-menu #mobileActionsMenu="matMenu">
+                <button mat-menu-item (click)="copyToClipboard(link)">
+                  <mat-icon>content_copy</mat-icon>
+                  <span>Copy Link</span>
+                </button>
+                <button mat-menu-item (click)="openUrl(link.targetUrl)">
+                  <mat-icon>open_in_new</mat-icon>
+                  <span>Visit URL</span>
+                </button>
+                <button mat-menu-item (click)="editLink(link)">
+                  <mat-icon>edit</mat-icon>
+                  <span>Edit</span>
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="deleteLink(link)" class="delete-action">
+                  <mat-icon>delete</mat-icon>
+                  <span>Delete</span>
+                </button>
+              </mat-menu>
+            </div>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="card-url">
+              <strong>Target:</strong>
+              <a [href]="link.targetUrl" 
+                 target="_blank" 
+                 rel="noopener"
+                 class="url-link">
+                {{ link.targetUrl }}
+              </a>
+            </div>
+            
+            <div class="card-stats">
+              <div class="stat">
+                <mat-icon>bar_chart</mat-icon>
+                <span>{{ link.hits }} hits</span>
+              </div>
+              <div class="stat">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ formatDate(link.createdAt) }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading() && !error() && filteredLinks().length === 0) {
+    <mat-card class="empty-state">
+      <mat-card-content>
+        <div class="empty-content">
+          <mat-icon>link_off</mat-icon>
+          @if (searchTerm()) {
+            <h3>No links found</h3>
+            <p>No links match your search term "{{ searchTerm() }}"</p>
+            <button mat-button (click)="onSearchChange('')">Clear search</button>
+          } @else {
+            <h3>No short links yet</h3>
+            <p>Create your first short link to get started!</p>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
+
+<!-- Floating Action Button for Mobile -->
+@if (isMobile()) {
+  <button 
+    mat-mini-fab 
+    color="primary" 
+    (click)="createLink()" 
+    class="fab"
+    matTooltip="Create new link"
+    matTooltipPosition="left">
+    <mat-icon>add</mat-icon>
+  </button>
+}
